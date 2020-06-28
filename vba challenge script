@@ -1,0 +1,83 @@
+Sub stockmarket()
+
+'Define Variables
+Dim tickername As String
+Dim yearchange As Double
+yearchange = 0
+Dim percentchange As Double
+percentchange = 0
+Dim totalstockvolume As Double
+totalstockvolume = 0
+Dim openingprice As Double
+openingprice = 0
+Dim closingprice As Double
+closingprice = 0
+Dim Summary_Table_Row As Integer
+Summary_Table_Row = 2
+Dim WS As Worksheet
+Dim r As Long
+
+
+
+
+For Each WS In ActiveWorkbook.Worksheets
+
+WS.Activate
+    
+'Find the last row
+    LastRow = WS.Cells(Rows.Count, 1).End(xlUp).Row
+
+    Cells(1, 9).Value = "Ticker"
+    Cells(1, 10).Value = "Yearly Change"
+    Cells(1, 11).Value = "Percent Change"
+    Cells(1, 12).Value = "Total Stock Volume"
+
+
+For r = 2 To LastRow
+    If Cells(r, 1).Value <> Cells(r - 1, 1).Value Then
+    ticker = Cells(r, 1).Value
+    totalstockvolume = Cells(r, 7).Value + totalstockvolume
+    openingprice = Cells(r, 3).Value
+    closingprice = Cells(r + 261, 6).Value
+    yearchange = closingprice - openingprice
+    Range("I" & Summary_Table_Row).Value = ticker
+    Range("L" & Summary_Table_Row).Value = totalstockvolume
+    Range("J" & Summary_Table_Row).Value = yearchange
+        
+    
+    'Add Percent Change
+        If (openingprice = 0 And closingprice = 0) Then
+        percentchange = 0
+        ElseIf (openingprice = 0 And closingprice <> 0) Then
+        percentchange = 1
+        Else
+            percentchange = yearchange / openingprice
+            Range("K" & Summary_Table_Row).Value = percentchange
+            Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
+        End If
+        
+        'Check YearChange for Conditional Formatting
+        If Range("J" & Summary_Table_Row).Value >= 0 Then
+        Range("J" & Summary_Table_Row).Interior.ColorIndex = 10
+        Else: Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+        End If
+        
+   
+    Summary_Table_Row = Summary_Table_Row + 1
+    totalstockvolume = 0
+    
+    
+    ElseIf Cells(r, 1).Value = Cells(r - 1, 1).Value Then
+        totalstockvolume = Cells(r, 7).Value + totalstockvolume
+        Range("L" & Summary_Table_Row - 1).Value = totalstockvolume
+
+    End If
+ 
+    
+    Next r
+
+  
+    
+Next WS
+
+End Sub
